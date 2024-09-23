@@ -1,0 +1,101 @@
+name: .NET Framework CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  issues: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: '**/packages'
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.sln') }}-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore NuGet packages
+      run: nuget restore
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build solution
+      run: msbuild /p:Configuration=Release /p:IncludeSymbols=true
+
+    - name: Publish build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: |
+          **/bin/Release/
+          **/obj/Release/
+
+  test:
+    runs-on: windows-2022
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: '**/packages'
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.sln') }}-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - id: setup
+      name: Find VSTest.console.exe
+      run: |
+        $vswhere=vswhere -latest -products * -requires Microsoft.VisualStudio.Workload.ManagedDesktop Microsoft.VisualStudio.Workload.Web -requiresAny -property installationPath
+        $vstest=join-path $vswhere 'Common7\IDE\CommonExtensions\Microsoft\TestWindow\'
+        $vswhere=join-path $vswhere 'Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe'
+        if (test-path $vswhere) {
+          write-output "vstest-path=$vstest" >> $env:GITHUB_OUTPUT
+          write-output "$vstest" >> $env:GITHUB_PATH
+        } else {
+          write-output "::warning::Unable to locate VSTest.console.exe"
+        }
+      shell: pwsh
+
+    - name: Run tests
+      run: |
+        vstest.console.exe **/*Tests.dll /Parallel /logger:trx
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      if: always()
+      with:
+        files: |
+          TestResults/**/*.trx
