@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DevAssignment.IO
 {
     /// <summary>
     /// Interface for writing the result
     /// </summary>
-    internal interface IResultWriter
+    internal interface IResultWriter : IDisposable
     {
         /// <summary>
         /// Write the word frequencies to the output

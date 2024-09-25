@@ -69,5 +69,12 @@ namespace DevAssignment.IO
                 throw new ApplicationException("An error occurred while writing to the file.", ex);
             }
         }
+
+        /// <summary>
+        /// Dispose the object
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 }

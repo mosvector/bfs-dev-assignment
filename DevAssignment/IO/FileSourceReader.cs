@@ -57,5 +57,12 @@ namespace DevAssignment.IO
                 }
             }
         }
+
+        /// <summary>
+        /// Dispose the object
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 }
