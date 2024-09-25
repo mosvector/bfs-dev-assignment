@@ -1,62 +1,68 @@
-﻿using DevAssignment.IO;
-using DevAssignment.Processors;
+﻿using CommandLine;
+using DevAssignment.Models;
 using System;
-using System.IO;
 
 namespace DevAssignment
 {
+
     /// <summary>
     /// Implement a Windows console application that can process an input text file and create an
     /// output file containing the list of all words in the input file and their frequencies.
     /// </summary>
-    class Program
+    partial class Program
     {
-        static int Main(string[] args)
+        /// <summary>
+        /// Entry point of the application
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        static int RunOptions(Options options)
         {
-            // Get the program name
-            string programName = AppDomain.CurrentDomain.FriendlyName;
-
-            // Check the command-line arguments
-            if (args.Length != 2)
-            {
-                Console.WriteLine($"Usage: {programName} <Input File Path> <Output File Path>");
-                return -2;
-            }
-
-            // Get the input and output file paths
-            // The name of the input file is the first command-line parameter.
-            // The name of the output file is the second command-line parameter.
-            var inputFilePath = args[0];
-            var outputFilePath = args[1];
-
-            // Check if the input file exists
-            if (!File.Exists(inputFilePath))
-            {
-                Console.WriteLine("Input file does not exist.");
-                return -1;
-            }
-
-            Console.WriteLine($"Processing file {inputFilePath}");
-
             try
             {
-                // Process the input file and write the output file                
-                ISourceReader reader = new FileSourceReader(inputFilePath);
-                ISourceProcessor processor = new WordFrequencyProcessor(reader);
-                IResultWriter writer = new FileResultWriter(outputFilePath);
+                // Check if the input and output options are selected
+                if (options.IsOnlyOneInputOptionSelected() == false)
+                {
+                    throw new ArgumentException("Please select one input option.");
+                }
 
-                var wordFrequencies = processor.Process();
-                writer.WriteResult(wordFrequencies);
+                if (options.IsOnlyOneOutputOptionSelected() == false)
+                {
+                    throw new ArgumentException("Please select one output option.");
+                }
 
-                Console.WriteLine($"Processed successfully and results have written to {outputFilePath}.");
+                // Create the source reader, processor and result writer based on the options
+                using (var reader = Factory.CreateSourceReader(options))
+                using (var processor = Factory.CreateSourceProcessor(options, reader))
+                using (var writer = Factory.CreateResultWriter(options))
+                {
+                    var wordFrequencies = processor.Process();
+                    writer.WriteResult(wordFrequencies);
+                }
+
+                Console.WriteLine($"Processed successfully.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                return -3;
+
+                if (options.Verbose)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                }
+
+                return 1;
             }
 
             return 0;
+        }
+
+        static int Main(string[] args)
+        {
+            return Parser.Default.ParseArguments<Options>(args)
+                .MapResult(
+                  (Options opts) => RunOptions(opts),
+                  errs => 1);
         }
     }
 }

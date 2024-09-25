@@ -80,7 +80,7 @@ namespace DevAssignment.Tests.Processors
             {
                 for (int i = 0; i < numberOfLines; i++)
                 {
-                    writer.Write(".NET Developer’s Test Assignment.");
+                    writer.WriteLine(".NET Developer’s Test Assignment.");
                 }
             }
 

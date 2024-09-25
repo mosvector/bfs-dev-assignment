@@ -6,10 +6,7 @@ using System.Linq;
 
 namespace DevAssignment.IO
 {
-    /// <summary>
-    /// Write the result to a file
-    /// </summary>
-    internal class FileResultWriter : IResultWriter
+    internal class AdvancedFileResultWriter : IResultWriter
     {
         /// <summary>
         /// Output file path
@@ -20,7 +17,7 @@ namespace DevAssignment.IO
         /// Initializes a new instance of result writer for a file
         /// </summary>
         /// <param name="filePath">Output file path</param>
-        public FileResultWriter(string filePath, bool overwrite = false)
+        public AdvancedFileResultWriter(string filePath, bool overwrite = false)
         {
             // if overwrite existing file is not expected, throw an exception
             if (!overwrite && File.Exists(_filePath))
@@ -50,7 +47,7 @@ namespace DevAssignment.IO
             }
 
             // Sort the words by frequency, then by word
-            var sortedWords = wordFrequencies.OrderByDescending(pair => pair.Value).ThenBy(pair => pair.Key);
+            var sortedWords = wordFrequencies.AsParallel().OrderByDescending(pair => pair.Value).ThenBy(pair => pair.Key);
 
             try
             {

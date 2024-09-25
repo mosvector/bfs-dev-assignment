@@ -28,11 +28,13 @@ namespace DevAssignment.IO
                 throw new ArgumentNullException("File path cannot be null or empty.", nameof(filePath));
             }
 
+            // Check if the file path ends with .txt, if not throw an exception
             if (!filePath.EndsWith(".txt"))
             {
                 throw new NotSupportedFormatException("Unsupported input.", ".txt");
             }
 
+            // Check if the file exists, if not throw an exception
             if (File.Exists(filePath) == false)
             {
                 throw new FileNotFoundException("File does not exist.", filePath);

@@ -14,7 +14,7 @@ namespace DevAssignment.Tests.IO
     /// Test class for the FileResultWriter class
     /// </summary>
     [TestClass]
-    public class FileResultWriterTests
+    public class AdvancedFileResultWriterTests
     {
         /// <summary>
         /// Create a dictionary of unique words with random frequencies
@@ -149,35 +149,7 @@ namespace DevAssignment.Tests.IO
         public void TestWriteOutputFile(ConcurrentDictionary<string, int> wordFrequencies, string[] expected)
         {
             // Arrange
-            var testOutput = "test_output.txt";
-
-            // Act
-            IResultWriter writer = new FileResultWriter(testOutput);
-            writer.WriteResult(wordFrequencies);
-
-            // Assert
-            var lines = File.ReadAllLines(testOutput);
-            for (int i = 0; i < expected.Length; i++)
-            {
-                Assert.AreEqual(expected[i], lines[i]);
-            }
-
-            // Cleanup
-            if (File.Exists(testOutput))
-            {
-                File.Delete(testOutput);
-            }
-        }
-
-        /// <summary>
-        /// Test output file has been sorted first by FREQUENCY and then by WORD
-        /// </summary>
-        [TestMethod]
-        [DynamicData(nameof(GenerateUniqueWordsWrapper), DynamicDataSourceType.Method)]
-        public void TestWriteOutputFileWithManyUniqueWord(ConcurrentDictionary<string, int> wordFrequencies)
-        {
-            // Arrange
-            var testOutput = "test_output_unique_words.txt";
+            var testOutput = "test_advanced_output.txt";
 #if DEBUG
             // Start the stopwatch
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -203,8 +175,55 @@ namespace DevAssignment.Tests.IO
             Console.WriteLine($"Memory used: {memoryUsed} bytes");
 #endif
             // Assert
+            var lines = File.ReadAllLines(testOutput);
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.AreEqual(expected[i], lines[i]);
+            }
+
+            // Cleanup
+            if (File.Exists(testOutput))
+            {
+                File.Delete(testOutput);
+            }
+        }
+
+        /// <summary>
+        /// Test output file has been sorted first by FREQUENCY and then by WORD
+        /// </summary>
+        [TestMethod]
+        [DynamicData(nameof(GenerateUniqueWordsWrapper), DynamicDataSourceType.Method)]
+        public void TestWriteOutputFileWithManyUniqueWord(ConcurrentDictionary<string, int> wordFrequencies)
+        {
+            // Arrange
+            var testOutput = "test_advanced_output_unique_words.txt";
+#if DEBUG
+            // Start the stopwatch
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Measure initial memory usage
+            long initialMemory = GC.GetTotalMemory(true);
+#endif
+            // Act
+            IResultWriter writer = new AdvancedFileResultWriter(testOutput);
+            writer.WriteResult(wordFrequencies);
+#if DEBUG
+            // Stop the stopwatch
+            stopwatch.Stop();
+
+            // Measure final memory usage
+            long finalMemory = GC.GetTotalMemory(true);
+
+            // Calculate memory used
+            long memoryUsed = finalMemory - initialMemory;
+
+            // Display elapsed time and memory used
+            Console.WriteLine($"Time taken: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Memory used: {memoryUsed} bytes");
+#endif
+            // Assert
             Console.WriteLine($"Unique words count: {wordFrequencies.Count}");
-            Assert.IsTrue(File.Exists(testOutput));
+            Assert.IsTrue( File.Exists(testOutput) );
 
             // Cleanup
             if (File.Exists(testOutput))

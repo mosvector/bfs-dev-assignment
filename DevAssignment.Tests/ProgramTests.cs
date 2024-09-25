@@ -28,7 +28,12 @@ namespace DevAssignment.Tests
             Assert.IsNotNull(methodInfo, "Main method not found");
 
             // Act
-            int result = (int)methodInfo.Invoke(null, new object[] { new string[] { inputFilePath, outputFilePath } });
+            int result = (int)methodInfo.Invoke(null, new object[] { new string[] { 
+                "--from-file",
+                inputFilePath,
+                "--to-file",
+                outputFilePath 
+            } });
 
             // Assert
             Assert.IsTrue(File.Exists(inputFilePath));
@@ -58,11 +63,14 @@ namespace DevAssignment.Tests
             Assert.IsNotNull(methodInfo, "Main method not found");
 
             // Act
-            int result = (int) methodInfo.Invoke(null, new object[] { new string[] { inputFilePath } });
+            int result = (int)methodInfo.Invoke(null, new object[] { new string[] { 
+                "--from-file",
+                inputFilePath
+            } });
 
             // Assert
             Assert.IsFalse(File.Exists(outputFilePath));
-            Assert.AreEqual(-2, result);
+            Assert.AreEqual(1, result);
 
             // Clean up
             if (File.Exists(inputFilePath))
@@ -93,11 +101,16 @@ namespace DevAssignment.Tests
             Assert.IsNotNull(methodInfo, "Main method not found");
 
             // Act
-            int result = (int)methodInfo.Invoke(null, new object[] { new string[] { inputFilePath, outputFilePath } });
+            int result = (int)methodInfo.Invoke(null, new object[] { new string[] {
+                "--from-file",
+                inputFilePath,
+                "--to-file",
+                outputFilePath
+            } });
 
             // Assert
             Assert.IsFalse(File.Exists(outputFilePath));
-            Assert.AreEqual(-1, result);
+            Assert.AreEqual(1, result);
 
             // Clean up
             if (File.Exists(inputFilePath))

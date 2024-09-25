@@ -10,7 +10,7 @@ namespace DevAssignment.Processors
     /// <summary>
     /// Word frequency processor
     /// </summary>
-    internal class WordFrequencyProcessor : ISourceProcessor, IDisposable
+    internal class WordFrequencyProcessor : ISourceProcessor
     {
         /// <summary>
         /// Source reader
