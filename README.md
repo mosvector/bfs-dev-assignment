@@ -4,7 +4,7 @@ This project Implement a Windows console application that can process an input t
 
 ## Table of Contents
 
-1. [Project Structure](#project-structure)]
+1. [Project Structure](#project-structure)
 2. [Architecture](#architecture)
 	- [Overview](#overview)
 	- [Modularity Design](#modularity-design)
